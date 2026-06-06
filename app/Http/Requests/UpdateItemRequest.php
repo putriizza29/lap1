@@ -3,28 +3,43 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class UpdateItemRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            'name'        => 'sometimes|required|string|max:255',
-            'quantity'    => 'sometimes|required|integer|min:0',
-            'price'       => 'sometimes|required|numeric|min:0',
+            'name' => 'sometimes|required|string|max:255',
+            'quantity' => 'sometimes|required|integer|min:0',
+            'price' => 'sometimes|required|numeric|min:0',
             'category_id' => 'sometimes|required|exists:categories,id',
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
-            'sometimes.required' => 'Field ini diperlukan saat diubah.',
+            'name.required' => 'Nama item wajib diisi jika kolom ini dikirim.',
+            'quantity.integer' => 'Jumlah harus berupa angka bulat.',
+            'price.numeric' => 'Harga harus berupa angka.',
+            'category_id.exists' => 'Kategori tidak ditemukan.',
         ];
     }
 }
+protected function prepareForValidation() {
+    $input = $this->all();
+
+    // Menyisir kiriman data dan meakukan trim serta strip_tags jika tipenya:
+        array_walk($input, function ($val) {
+            if (is_string(&$val)) {
+                $val = trim(strip_tags($val));
+            }
+        });
+        $this->merge($input);
+    }
