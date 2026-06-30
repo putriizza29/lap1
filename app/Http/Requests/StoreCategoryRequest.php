@@ -25,15 +25,17 @@ class StoreCategoryRequest extends FormRequest
             'name.unique' => 'Nama kategori sudah ada.',
         ];
     }
-}
-protected function prepareForValidation() {
-    $input = $this->all();
 
-    // Menyisir kiriman data dan meakukan trim serta strip_tags jika tipenya:
-        array_walk($input, function ($val) {
-            if (is_string(&$val)) {
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+        array_walk($input, function (&$val) {
+            if (is_string($val)) {
                 $val = trim(strip_tags($val));
             }
         });
+
         $this->merge($input);
     }
+}

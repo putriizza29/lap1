@@ -5,20 +5,23 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemController;
 use Illuminate\Support\Facades\Route;
 
-// Route publik
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login',    [AuthController::class, 'login']);
+Route::prefix('v1')->group(function () {
 
-// Route yang dilindungi Sanctum
-Route::middleware('auth:sanctum')->group(function () {
+    // Route publik
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login',    [AuthController::class, 'login']);
 
-    Route::apiResource('categories', CategoryController::class)->except(['destroy']);
-    Route::apiResource('items',      ItemController::class)->except(['destroy']);
+    // Route yang dilindungi Sanctum
+    Route::middleware('auth:sanctum')->group(function () {
 
-    // DELETE hanya untuk admin
-    Route::middleware('role:admin')->group(function () {
-        Route::delete('categories/{category}', [CategoryController::class, 'destroy']);
-        Route::delete('items/{item}',          [ItemController::class, 'destroy']);
+        Route::apiResource('categories', CategoryController::class)->except(['destroy']);
+        Route::apiResource('items',      ItemController::class)->except(['destroy']);
+
+        Route::middleware('role:admin')->group(function () {
+            Route::delete('categories/{category}', [CategoryController::class, 'destroy']);
+            Route::delete('items/{item}',          [ItemController::class, 'destroy']);
+        });
+
     });
 
 });
