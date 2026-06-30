@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Services\ItemService;
@@ -9,8 +10,12 @@ protected ItemService $svc;
 public function __construct(ItemService $svc){
 $this->svc = $svc;
 }
-public function index(){
-return $this->success($this->svc->all());
+public function index(Request $request){
+    $items = $this->svc->all()->filter(function($item) use ($request) {
+        return !$request->category_id || $item->category_id == $request->category_id;
+    })->values();
+
+    return $this->success($items);
 }
 public function store(StoreItemRequest $req){
 $item = $this->svc->create($req->validated());
